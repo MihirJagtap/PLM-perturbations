@@ -10,7 +10,7 @@ library(broom)
 library(purrr)
 library(dplyr)
 library(tidyr)
-library(nlstools) #this was commented out before
+#library(nlstools) #this was commented out before
 setwd("/Users/mihirjagtap/Documents/Dairy_Brain/PLM-perturbations")
 
 #setwd("/Users/victor/Library/CloudStorage/GoogleDrive-vcabrera@wisc.edu/My Drive/_10_UW-MADISON/23Sabbatical/Technical/A.Gallo/PLM-Perturbation")
