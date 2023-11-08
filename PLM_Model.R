@@ -3,9 +3,6 @@
 ####     "A lactation curve model with explicit representation of perturbations as a phenotyping tool for dairy livestock precision farming"
 ####################################################################################################################################################
 
-############################ The perturbation model function
-# This function calculates the effect of perturbation for a given time ktps with the parameters k0, k1, k2 of the ith perturbation . 
-
 #install.packages('nls.multstart')
 library(nls.multstart)
 library(ggplot2)
@@ -13,10 +10,12 @@ library(broom)
 library(purrr)
 library(dplyr)
 library(tidyr)
-#library(nlstools)
+library(nlstools) #this was commented out before
+setwd("/Users/mihirjagtap/Documents/Dairy_Brain/PLM-perturbations")
+
 #setwd("/Users/victor/Library/CloudStorage/GoogleDrive-vcabrera@wisc.edu/My Drive/_10_UW-MADISON/23Sabbatical/Technical/A.Gallo/PLM-Perturbation")
-Cow.data <- read.csv("Cow.data.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
-head(Cow.data)
+#Cow.data <- read.csv("Cow.data.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+#head(Cow.data)
 
 
 ############################ The perturbation model function
