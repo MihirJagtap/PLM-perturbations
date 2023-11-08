@@ -19,12 +19,13 @@ source("PLM_Model.R")
 
 Cow.data <- read.csv("DATA_PLM.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
 head(Cow.data)
+#ID, time, parite
 ```
+
+
 ```{r}
 NMAX = 15
 compute_plm(Cow.data, NMAX)
-  
-
 ```
 
 
