@@ -17,9 +17,10 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r}
 source("PLM_Model.R")
 
-Cow.data <- read.csv("DATA_PLM.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+Cow.data <- read.csv("DATA_PLM.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE)
 head(Cow.data)
 #ID, time, parite
+Cow.data$time
 ```
 
 
