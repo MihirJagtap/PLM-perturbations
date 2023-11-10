@@ -19,7 +19,7 @@ When you click the **Knit** button a document will be generated that includes bo
 Cow.data <- read.csv("DATA_PLM.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE)
 head(Cow.data)
 #ID, time, parite
-Cow.data$time
+mv_data = Cow.data[Cow.data$ID == 1,]
 ```
 
 ```{r}
@@ -31,6 +31,15 @@ Cow.data$time
 ############################ The perturbation model function
 # This function calculates the effect of perturbation for a given time ktps with the parameters k0, k1, k2 of the ith perturbation . 
 
+#install.packages('nls.multstart')
+library(nls.multstart)
+library(ggplot2)
+library(broom)
+library(purrr)
+library(dplyr)
+library(tidyr)
+#library(nlstools) #this was commented out before
+setwd("/Users/mihirjagtap/Documents/Dairy_Brain/PLM-perturbations")
 
 perturb = function(tt,ktps,k0, k1, k2){
   if(k1==k2){return(rep(1, length(tt)));}
@@ -178,7 +187,7 @@ compute_plm=function(Cow.data, NMAX) {
   data_fit["fit"]=MODELS[[i]][["predict"]]
   data_fit["Prpert"]=(wn-MODELS[[i]][["predict"]])/(wn)
   # plot
-  plot(TIME,Cow.data$MY_obs,main =paste(titre_graph,", Np:",i,", Pr:",round(PARAM[i,"Loss"]),"%"), xlab= "Time (days)",
+  plot(TIME,Cow.data$MY_obs,main =paste("titre_graph, Np:",i,", Pr:",round(PARAM[i,"Loss"]),"%"), xlab= "Time (days)",
        col="blue", ylim=c(0,max(Cow.data$MY_obs)),ylab = "Milk yield (kg)",pch=21,cex=0.5, axes = FALSE)
   axis(1)
   axis(2)
@@ -192,8 +201,8 @@ compute_plm=function(Cow.data, NMAX) {
 
 
 ```{r}
-NMAX = 319
-compute_plm(Cow.data, NMAX)
+NMAX = 7
+compute_plm(mv_data, NMAX)
 
 ```
 

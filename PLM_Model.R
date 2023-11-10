@@ -6,6 +6,15 @@
 ############################ The perturbation model function
 # This function calculates the effect of perturbation for a given time ktps with the parameters k0, k1, k2 of the ith perturbation . 
 
+#install.packages('nls.multstart')
+library(nls.multstart)
+library(ggplot2)
+library(broom)
+library(purrr)
+library(dplyr)
+library(tidyr)
+#library(nlstools) #this was commented out before
+setwd("/Users/mihirjagtap/Documents/Dairy_Brain/PLM-perturbations")
 
 perturb = function(tt,ktps,k0, k1, k2){
   if(k1==k2){return(rep(1, length(tt)));}
@@ -41,7 +50,7 @@ compute_plm=function(Cow.data, NMAX) {
   PARAM = as.data.frame(matrix(nrow=NMAX,ncol=11)); 
   colnames(PARAM)=c("ID","N", "ktps","k0","k1","k2","a","b","c","Loss","Parity")
   data_fit = as.data.frame(matrix(nrow=length(TIME),ncol=0));
-  PARAM[1,"ID"]<-as.character(unique(Cow.data$ID));
+  PARAM[1,"ID"]=as.character(unique(Cow.data$ID));
   PARAM[1,"Parity"]=unique(Cow.data$parite)
   PARAM[1,"ktps"]=0;PARAM[1,"k0"]=0;PARAM[1,"k1"]=0;PARAM[1,"k2"]=0;
   # Creating a list object to save the results of fitting
@@ -153,7 +162,7 @@ compute_plm=function(Cow.data, NMAX) {
   data_fit["fit"]=MODELS[[i]][["predict"]]
   data_fit["Prpert"]=(wn-MODELS[[i]][["predict"]])/(wn)
   # plot
-  plot(TIME,Cow.data$MY_obs,main =paste(titre_graph,", Np:",i,", Pr:",round(PARAM[i,"Loss"]),"%"), xlab= "Time (days)",
+  plot(TIME,Cow.data$MY_obs,main =paste("titre_graph, Np:",i,", Pr:",round(PARAM[i,"Loss"]),"%"), xlab= "Time (days)",
        col="blue", ylim=c(0,max(Cow.data$MY_obs)),ylab = "Milk yield (kg)",pch=21,cex=0.5, axes = FALSE)
   axis(1)
   axis(2)
