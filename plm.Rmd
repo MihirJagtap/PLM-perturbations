@@ -19,7 +19,7 @@ When you click the **Knit** button a document will be generated that includes bo
 Cow.data <- read.csv("DATA_PLM.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE)
 head(Cow.data)
 #ID, time, parite
-mv_data = Cow.data[Cow.data$ID == 1,]
+mv_data = Cow.data[Cow.data$ID == 2,]
 ```
 
 ```{r}
@@ -205,7 +205,11 @@ NMAX = 7
 compute_plm(mv_data, NMAX)
 
 ```
+```{r}
 
+NMAX = 15
+compute_plm(mv_data, NMAX)
+```
 
 ## Including Plots
 
