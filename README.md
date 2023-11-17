@@ -16,6 +16,6 @@ In the word document too, the "Two-step algorithm for PLM fitting data of one la
 
 In the page 6 of the Microsoft word document that the authors provide, there is these two diagrams a) and b)- 
 
-![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![alt text](thumbnail_image.png?raw=true)
 
 In the diagrams a) and b) how is the fitting (the red line) changing when we change the RMSE (0.11 to 0.41) like what does it mean? How is dependent on the RMSE (kg)
