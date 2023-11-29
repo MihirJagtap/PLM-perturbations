@@ -379,7 +379,7 @@ wood_model <- nls(MY_obs ~ a * mv_data$time^b * exp(-c * mv_data$time),
                   data = mv_data, 
                   start = start_values,
                   weights = weights,
-                  control = nls.control(maxiter = 100))
+                  control = nls.control(maxiter = 100000))
 
 # Generate predictions from the fitted model
 predicted_milk_yields <- predict(wood_model, newdata = mv_data)
