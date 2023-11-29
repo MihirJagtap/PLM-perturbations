@@ -49,6 +49,9 @@ perturb = function(tt,ktps,k0, k1, k2){
   y = exp(-k2*delta_t)-exp(-k1*delta_t);#Second part of the PLM equation
   r =  (is_enabled*x*y);# The PLM equation
   r=1-r
+  
+  
+  
   return(r);
 }
 
@@ -209,6 +212,214 @@ compute_plm(mv_data, NMAX)
 
 NMAX = 15
 compute_plm(mv_data, NMAX)
+```
+
+```{r}
+# Load necessary libraries
+library(readr)
+library(zoo)
+library(stats)
+library(signal)
+# Function to detect perturbations
+detect_perturbations <- function(residuals) {
+  perturbations <- list()
+  in_perturbation <- FALSE
+  start <- end <- NA
+
+  for (i in 1:length(residuals)) {
+    if (!is.na(residuals[i])) {
+      if (residuals[i] < 0) {
+        if (!in_perturbation) {
+          in_perturbation <- TRUE
+          start <- i
+        }
+        end <- i
+      } else {
+        if (in_perturbation && (end - start) >= 4) {
+          perturbations <- c(perturbations, list(c(start, end)))
+        }
+        in_perturbation <- FALSE
+      }
+    }
+  }
+
+  # Handle case where the series ends while still in a perturbation
+  if (in_perturbation && (end - start) >= 4) {
+    perturbations <- c(perturbations, list(c(start, end)))
+  }
+
+  return(perturbations)
+}
+
+# Function to characterize perturbations
+characterize_perturbations <- function(daily_milk_yield, perturbations) {
+  characterization <- list()
+  
+  for (perturbation in perturbations) {
+    start <- perturbation[1]
+    end <- perturbation[2]
+
+    # Apply Savitzky-Golay smoothing
+    smoothed <- rollapply(daily_milk_yield[start:end], width = 5, FUN = function(x) {
+      sgolayfilt(x, p = 3, n = 5)
+    }, fill = NA, align = "center")
+
+
+    # Find the day of maximum loss
+    TML <- which.min(smoothed) + start - 1
+    characterization <- c(characterization, list(list("start" = start, "end" = end, "TML" = TML)))
+  }
+
+  return(characterization)
+}
+
+# Reading the CSV file with semicolon separator
+milk_data <- read.csv("DATA_PLM.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE)
+
+mv_data = milk_data[milk_data$ID == 2,]
+# Extracting daily milk yield assuming 'MY_obs' is the milk yield column
+daily_milk_yield <- mv_data$MY_obs
+
+# Generate or approximate the unperturbed yield curve
+# This is an example using a rolling average for smoothing
+unperturbed_yield <- zoo::rollapply(daily_milk_yield, width = 15, FUN = mean, fill = NA, align = "center")
+
+
+
+
+
+# Load necessary libraries for plotting
+library(ggplot2)
+
+# Plotting the data points
+plot(mv_data$time, mv_data$MY_obs, main = "Milk Yield and Smooth Line", xlab = "Time (Days)", ylab = "Milk Yield (kg)", pch = 19, col = 'blue')
+
+# Add the smooth line for the unperturbed yield
+lines(mv_data$time, unperturbed_yield, type = "l", col = "red", lwd = 2)
+
+# If you have the perturbed yield as well, plot it
+#lines(mv_data$time_dim, perturbed_yield, type = "l", col = "green", lwd = 2)
+
+# Enhance the plot with a legend
+legend("topright", legend = c("Observed Data", "Unperturbed (Smoothed)"), col = c("blue", "red"), lty = 1:1, cex = 0.8)
+
+# Save the plot to a file
+# png("milk_yield_plot.png")
+# plot(...) # repeat the plotting code
+# dev.off()
+
+
+
+number_of_perturbations <- 0
+in_perturbation <- FALSE
+current_perturbation_length <- 0
+
+# Iterate over residuals to count perturbations
+for (residual in residuals) {
+  if (is.na(residual)) {
+    if (in_perturbation && current_perturbation_length >= 5) {
+      number_of_perturbations <- number_of_perturbations + 1
+    }
+    # Reset the perturbation tracking
+    in_perturbation <- FALSE
+    current_perturbation_length <- 0
+  } else if (residual < 0) {
+    if (!in_perturbation) {
+      # Start of a new perturbation
+      in_perturbation <- TRUE
+      current_perturbation_length <- 1
+    } else {
+      # Continue the current perturbation
+      current_perturbation_length <- current_perturbation_length + 1
+    }
+  } else {
+    if (in_perturbation && current_perturbation_length >= 5) {
+      # End of a perturbation
+      number_of_perturbations <- number_of_perturbations + 1
+    }
+    # Reset the perturbation tracking
+    in_perturbation <- FALSE
+    current_perturbation_length <- 0
+  }
+}
+
+# If the last data point is part of a perturbation, check and count it
+if (in_perturbation && current_perturbation_length >= 5) {
+  number_of_perturbations <- number_of_perturbations + 1
+}
+
+# Output the number of perturbations
+print(number_of_perturbations)
+
+
+```
+
+```{r}
+
+library(nlme)
+library(ggplot2)
+
+# Load your data
+milk_data <- read.csv("DATA_PLM.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE)
+
+# Filter the data for a specific ID if necessary
+mv_data <- milk_data[milk_data$ID == 2, ]
+
+# Define the starting values for the Wood's model parameters based on your data
+# These are just example starting values and will likely need adjustment
+# You may need to adjust these starting values based on your data
+start_values <- list(a = max(mv_data$MY_obs), b = 0.4, c = 0.004)
+
+# Add weights to give more emphasis to the later data points
+weights <- rep(1, length(mv_data$MY_obs))
+weights[tail(seq_along(mv_data$MY_obs), 50)] <- 2  # Example: Last 50 points are given double weight
+
+# Fit Wood's model with adjusted starting values and weights
+wood_model <- nls(MY_obs ~ a * mv_data$time^b * exp(-c * mv_data$time), 
+                  data = mv_data, 
+                  start = start_values,
+                  weights = weights,
+                  control = nls.control(maxiter = 100))
+
+# Generate predictions from the fitted model
+predicted_milk_yields <- predict(wood_model, newdata = mv_data)
+
+# Plot the observed and fitted data
+plot(mv_data$time, mv_data$MY_obs, main = "Milk Yield and Wood's Model Curve",
+     xlab = "Time (Days)", ylab = "Milk Yield (kg)", pch = 19, col = 'blue')
+lines(mv_data$time, predicted_milk_yields, type = "l", col = "red", lwd = 2)
+legend("topright", legend = c("Observed Data", "Wood's Model (Fitted)"), 
+       col = c("blue", "red"), lty = 1:1, cex = 0.8)
+
+
+# 2.496133	0.2140598	0.002476890	
+# Optionally, save the plot to a file
+# png("milk_yield_plot.png")
+# plot(...)
+# lines(...)
+# legend(...)
+# dev.off()
+
+```
+```{r}
+
+residuals <- predicted_milk_yields - mv_data$MY_obs
+perturbations <- detect_perturbations(residuals)
+characterization <- characterize_perturbations(mv_data$MY_obs, perturbations)
+
+# Print the results
+print(characterization)
+```
+
+```{r}
+
+milk_data <- read.csv("DATA_PLM.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE)
+
+# Filter the data for a specific ID if necessary
+mv_data <- milk_data[milk_data$ID == 2, ]
+NMAX = 7
+compute_plm(mv_data, NMAX)
+
 ```
 
 ## Including Plots
