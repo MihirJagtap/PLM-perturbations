@@ -210,7 +210,7 @@ compute_plm(mv_data, NMAX)
 ```
 ```{r}
 
-NMAX = 1
+NMAX = 15
 compute_plm(mv_data, NMAX)
 ```
 
@@ -414,6 +414,7 @@ residuals <- predicted_milk_yields - mv_data$MY_obs
 perturbations <- detect_perturbations(residuals)
 characterization <- characterize_perturbations(mv_data$MY_obs, perturbations)
 # 2.578501	0.1991619	0.002282877
+# 15 - 2.501557	0.2135134	0.002482449	
 # Print the results
 print(characterization)
 ```
@@ -427,6 +428,32 @@ legend("topright", legend = c("Observed Data", "Wood's Model (Fitted)"),
 
 ```
 
+```{r}
+
+milk_data <- read.csv("DATA_PLM.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE)
+
+# Filter the data for a specific ID if necessary
+mv_data <- milk_data[milk_data$ID == 2, ]
+#NMAX = 7
+#compute_plm(mv_data, NMAX)
+predicted_milk_yields <- wood(mv_data$time, 2.452262,	0.2244156,	0.002635566	)
+residuals <- predicted_milk_yields - mv_data$MY_obs
+perturbations <- detect_perturbations(residuals)
+characterization <- characterize_perturbations(mv_data$MY_obs, perturbations)
+# 2.578501	0.1991619	0.002282877
+# 15 - 2.501557	0.2135134	0.002482449	
+# Print the results
+print(characterization)
+```
+
+```{r}
+
+plot(mv_data$time, mv_data$MY_obs, main = "Milk Yield and Wood's Model Curve",
+     xlab = "Time (Days)", ylab = "Milk Yield (kg)", pch = 19, col = 'blue')
+lines(mv_data$time, predicted_milk_yields, type = "l", col = "red", lwd = 2)
+legend("topright", legend = c("Observed Data", "Wood's Model (Fitted)"), 
+       col = c("blue", "red"), lty = 1:1, cex = 0.8)
+```
 ```{r}
 
 residuals <- predicted_milk_yields - mv_data$MY_obs
