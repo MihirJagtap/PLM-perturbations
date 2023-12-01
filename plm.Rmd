@@ -197,16 +197,21 @@ compute_plm=function(Cow.data, NMAX) {
   lines(TIME,MODELS[[i]][["predict"]],col="red",lwd=2)
   lines(Cow.data$time,wood(TIME,PARAM[i,"a"], PARAM[i,"b"], PARAM[i,"c"]),col="black",lwd=2)
   legend("topright",box.lty=0, legend=c("data","Unperturbed","Perturbed"), cex=0.8,lty=c(NA,1,1),pch=c(21,NA,NA), lwd=c(1,1.5,1.5),col=c("blue","black","red"))
-  return(list(param=PARAM, data_fit= data_fit, models=MODELS))
+  print("here")
+  print(PARAM[i,"a"])
+  print( PARAM[i,"b"])
+  print( PARAM[i,"c"])
+  return(list(a = PARAM[i,"c"], param=PARAM, data_fit= data_fit, models=MODELS))
 }
 
 ```
 
 
 ```{r}
-NMAX = 7
-compute_plm(mv_data, NMAX)
-
+NMAX = 15
+a = compute_plm(mv_data, NMAX)
+a[1]
+a[2]
 ```
 ```{r}
 
