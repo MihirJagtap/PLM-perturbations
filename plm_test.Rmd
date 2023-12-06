@@ -338,7 +338,7 @@ PARAM <- result$param
 MODELS <- result$models
 
 # Define your intervals in a matrix or data frame
-intervals <- matrix(c(51, 57, 74, 108, 153, 158, 198, 210, 228, 292), ncol = 2, byrow = TRUE)
+#intervals <- matrix(c(51, 57, 74, 108, 153, 158, 198, 210, 228, 292), ncol = 2, byrow = TRUE)
 
 # Plot the main graph
 plot(TIME, Cow.data$MY_obs, main = paste("titre_graph, Np:", i, ", Pr:", round(PARAM[i, "Loss"]), "%"), 
@@ -350,9 +350,9 @@ lines(Cow.data$time, wood(TIME, PARAM[i, "a"], PARAM[i, "b"], PARAM[i, "c"]), co
 legend("topright", box.lty=0, legend=c("data", "Unperturbed", "Perturbed"), cex=0.8, lty=c(NA, 1, 1), pch=c(21, NA, NA), lwd=c(1, 1.5, 1.5), col=c("blue", "black", "red"))
 
 # Loop through intervals to add lines
-for (j in 1:nrow(intervals)) {
-    abline(v = intervals[j, 1], col = "red", lwd = 2, lty = 2)
-    abline(v = intervals[j, 2], col = "green", lwd = 2, lty = 2)
+for (interval in perturbations) {
+    abline(v = interval[1], col = "red", lwd = 2, lty = 2)   # Start of the interval
+    abline(v = interval[2], col = "green", lwd = 2, lty = 2) # End of the interval
 }
 
 
