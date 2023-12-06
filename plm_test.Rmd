@@ -233,7 +233,7 @@ detect_perturbations <- function(residuals) {
         }
         end <- i
       } else {
-        if (in_perturbation && (end - start) >= 4) {
+        if (in_perturbation && (end - start) >= 5) {
           perturbations <- c(perturbations, list(c(start, end)))
         }
         in_perturbation <- FALSE
@@ -242,7 +242,7 @@ detect_perturbations <- function(residuals) {
   }
 
   # Handle case where the series ends while still in a perturbation
-  if (in_perturbation && (end - start) >= 4) {
+  if (in_perturbation && (end - start) >= 5) {
     perturbations <- c(perturbations, list(c(start, end)))
   }
 
