@@ -173,22 +173,39 @@ compute_plm=function(Cow.data, NMAX) {
   data_fit["fit"]=MODELS[[i]][["predict"]]
   data_fit["Prpert"]=(wn-MODELS[[i]][["predict"]])/(wn)
   # plot
-  plot(TIME,Cow.data$MY_obs,main =paste("titre_graph, Np:",i,", Pr:",round(PARAM[i,"Loss"]),"%"), xlab= "Time (days)",
-       col="blue", ylim=c(0,max(Cow.data$MY_obs)),ylab = "Milk yield (kg)",pch=21,cex=0.5, axes = FALSE)
-  axis(1)
-  axis(2)
-  lines(TIME,MODELS[[i]][["predict"]],col="red",lwd=2)
-  lines(Cow.data$time,wood(TIME,PARAM[i,"a"], PARAM[i,"b"], PARAM[i,"c"]),col="black",lwd=2)
-  legend("topright",box.lty=0, legend=c("data","Unperturbed","Perturbed"), cex=0.8,lty=c(NA,1,1),pch=c(21,NA,NA), lwd=c(1,1.5,1.5),col=c("blue","black","red"))
-  print("here")
-  print(PARAM[i,"a"])
-  print( PARAM[i,"b"])
-  print( PARAM[i,"c"])
-  return(list(param=PARAM, data_fit= data_fit, models=MODELS))
+  # plot(TIME,Cow.data$MY_obs,main =paste("titre_graph, Np:",i,", Pr:",round(PARAM[i,"Loss"]),"%"), xlab= "Time (days)",
+  #      col="blue", ylim=c(0,max(Cow.data$MY_obs)),ylab = "Milk yield (kg)",pch=21,cex=0.5, axes = FALSE)
+  # axis(1)
+  # axis(2)
+  # lines(TIME,MODELS[[i]][["predict"]],col="red",lwd=2)
+  # lines(Cow.data$time,wood(TIME,PARAM[i,"a"], PARAM[i,"b"], PARAM[i,"c"]),col="black",lwd=2)
+  # legend("topright",box.lty=0, legend=c("data","Unperturbed","Perturbed"), cex=0.8,lty=c(NA,1,1),pch=c(21,NA,NA), lwd=c(1,1.5,1.5),col=c("blue","black","red"))
+  # print("here")
+  # print(PARAM[i,"a"])
+  # print( PARAM[i,"b"])
+  # print( PARAM[i,"c"])
+  return(list(param=PARAM, data_fit= data_fit, models=MODELS, TIME=TIME, Cow.data=Cow.data))
 }
 ```
 
+```{r}
+plot_perturbations <- function(result, i) {
+    PARAM <- result$param
+    MODELS <- result$models
+    TIME <- result$TIME
+    Cow.data <- result$Cow.data
 
+    plot(TIME, Cow.data$MY_obs, main = paste("titre_graph, Np:", i, ", Pr:", round(PARAM[i, "Loss"]), "%"), 
+         xlab= "Time (days)", col="blue", ylim=c(0, max(Cow.data$MY_obs)), ylab = "Milk yield (kg)", pch=21, cex=0.5, axes = FALSE)
+    axis(1)
+    axis(2)
+    lines(TIME, MODELS[[i]][["predict"]], col="red", lwd=2)
+    lines(Cow.data$time, wood(TIME, PARAM[i, "a"], PARAM[i, "b"], PARAM[i, "c"]), col="black", lwd=2)
+    legend("topright", box.lty=0, legend=c("data", "Unperturbed", "Perturbed"), cex=0.8, lty=c(NA, 1, 1), pch=c(21, NA, NA), lwd=c(1, 1.5, 1.5), col=c("blue", "black", "red"))
+}
+
+
+```
 
 
 ```{r}
@@ -198,14 +215,15 @@ head(Cow.data)
 #ID, time, parite
 mv_data = Cow.data[Cow.data$ID == 1,]
 
-NMAX = 7
-a = compute_plm(mv_data, NMAX)
+NMAX = 15
+result = compute_plm(mv_data, NMAX)
+plot_perturbations(result, NMAX) 
 ```
 
 
 
 ```{r}
-df <- a[[1]]
+df <- result[[1]]
 wood_a <- df[NMAX, "a"]
 wood_b <- df[NMAX, "b"]
 wood_c <- df[NMAX, "c"]
@@ -309,4 +327,41 @@ characterization
 ```
 
 
+```{r}
+# Adding a vertical line for the 63rd day
 
+result <- result
+i <- NMAX
+TIME <- result$TIME
+Cow.data <- result$Cow.data
+PARAM <- result$param
+MODELS <- result$models
+
+# Define your intervals in a matrix or data frame
+intervals <- matrix(c(51, 57, 74, 108, 153, 158, 198, 210, 228, 292), ncol = 2, byrow = TRUE)
+
+# Plot the main graph
+plot(TIME, Cow.data$MY_obs, main = paste("titre_graph, Np:", i, ", Pr:", round(PARAM[i, "Loss"]), "%"), 
+     xlab= "Time (days)", col="blue", ylim=c(0, max(Cow.data$MY_obs)), ylab = "Milk yield (kg)", pch=21, cex=0.5, axes = FALSE)
+axis(1)
+axis(2)
+#lines(TIME, MODELS[[i]][["predict"]], col="red", lwd=2)
+lines(Cow.data$time, wood(TIME, PARAM[i, "a"], PARAM[i, "b"], PARAM[i, "c"]), col="black", lwd=2)
+legend("topright", box.lty=0, legend=c("data", "Unperturbed", "Perturbed"), cex=0.8, lty=c(NA, 1, 1), pch=c(21, NA, NA), lwd=c(1, 1.5, 1.5), col=c("blue", "black", "red"))
+
+# Loop through intervals to add lines
+for (j in 1:nrow(intervals)) {
+    abline(v = intervals[j, 1], col = "red", lwd = 2, lty = 2)
+    abline(v = intervals[j, 2], col = "green", lwd = 2, lty = 2)
+}
+
+
+```
+
+
+
+```{r}
+
+
+
+```

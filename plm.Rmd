@@ -208,7 +208,7 @@ compute_plm=function(Cow.data, NMAX) {
 
 
 ```{r}
-NMAX = 15
+NMAX = 7
 a = compute_plm(mv_data, NMAX)
 a[1]
 a[2]
