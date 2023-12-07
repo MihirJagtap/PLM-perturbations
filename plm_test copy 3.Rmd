@@ -215,7 +215,7 @@ head(Cow.data)
 #ID, time, parite
 mv_data = Cow.data[Cow.data$ID == 1,]
 
-NMAX = 15
+NMAX = 7
 result = compute_plm(mv_data, NMAX)
 plot_perturbations(result, NMAX) 
 ```
@@ -360,67 +360,4 @@ for (interval in perturbations) {
 
 
 
-```{r}
 
-MIN_DAYS_FOR_PERTURBATION = 5
-
-detect_perturbations <- function(yield, model_predictions) {
-  residuals <- yield - model_predictions
-  main_perturbations <- list()
-  sub_perturbations <- list()
-  
-  # Detect main perturbations
-  in_perturbation <- FALSE
-  for (i in 1:length(residuals)) {
-    if (!in_perturbation && residuals[i] < 0) {
-      start <- i
-      in_perturbation <- TRUE
-    }
-    if (in_perturbation && (residuals[i] >= 0 || i == length(residuals))) {
-      end <- i - 1
-      if (residuals[i] >= 0) {
-        end <- i - 1
-      } else {
-        end <- i
-      }
-      main_perturbations <- c(main_perturbations, list(c(start, end)))
-      in_perturbation <- FALSE
-    }
-  }
-
-  # Detect sub-perturbations within main perturbations
-  for (perturbation in main_perturbations) {
-    start <- perturbation[1]
-    end <- perturbation[2]
-    sub_start <- sub_end <- NULL
-    in_sub_perturbation <- FALSE
-    
-    for (j in start:end) {
-      if (!in_sub_perturbation && residuals[j] < 0) {
-        sub_start <- j
-        in_sub_perturbation <- TRUE
-      }
-      if (in_sub_perturbation && (residuals[j] >= 0 || j == end)) {
-        sub_end <- j - 1
-        if (residuals[j] >= 0) {
-          sub_end <- j - 1
-        } else {
-          sub_end <- j
-        }
-        sub_perturbations <- c(sub_perturbations, list(c(sub_start, sub_end)))
-        in_sub_perturbation <- FALSE
-      }
-    }
-  }
-
-  return(list(main_perturbations = main_perturbations, sub_perturbations = sub_perturbations))
-}
-
-plm_predictions <- MODELS[[NMAX]][["predict"]]
-# Using the function with your dataset
-results <- detect_perturbations(daily_milk_yield, plm_predictions)
-main_perturbations <- results$main_perturbations
-sub_perturbations <- results$sub_perturbations
-
-
-```
