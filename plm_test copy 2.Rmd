@@ -213,7 +213,7 @@ setwd("/Users/mihirjagtap/Documents/Dairy_Brain/PLM-perturbations")
 Cow.data <- read.csv("DATA_PLM.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE)
 head(Cow.data)
 #ID, time, parite
-mv_data = Cow.data[Cow.data$ID == 1,]
+mv_data = Cow.data[Cow.data$ID == 2,]
 
 NMAX = 15
 result = compute_plm(mv_data, NMAX)
