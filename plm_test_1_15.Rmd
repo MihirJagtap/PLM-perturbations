@@ -215,7 +215,7 @@ head(Cow.data)
 #ID, time, parite
 mv_data = Cow.data[Cow.data$ID == 1,]
 
-NMAX = 15
+NMAX = 7
 result = compute_plm(mv_data, NMAX)
 plot_perturbations(result, NMAX) 
 ```
